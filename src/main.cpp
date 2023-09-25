@@ -52,7 +52,7 @@
 float angle = 0;
 
 #define REQUIRED VERSION(1, 7, 0) // Required HomeSpan version
-#define FW_VERSION "1.0.0"
+#define FW_VERSION "1.1.0"
 #define RGBW 0
 
 #include "HomeSpan.h"
@@ -80,6 +80,7 @@ float angle = 0;
 
 // clang-format off
 CUSTOM_CHAR(RainbowEnabled, 00000001-0001-0001-0001-46637266EA00, PR + PW + EV, BOOL, 0, 0, 1, false);
+CUSTOM_CHAR_STRING(IPAddress, 00000006-0001-0001-0001-46637266EA00, PR + EV, "");
 // clang-format on
 
 WebServer server(80);
@@ -114,6 +115,7 @@ struct Pixel_Strand
 	Characteristic::Saturation S{100, true};
 	Characteristic::Brightness V{100, true};
 	Characteristic::RainbowEnabled rainbow{false, true};
+	Characteristic::IPAddress ip_address{"0.0.0.0"};
 
 	vector<SpecialEffect *> Effects;
 
@@ -136,6 +138,8 @@ struct Pixel_Strand
 		rainbow.setUnit(""); // configures custom "RainbowEnabled" characteristic
 							 // for use with Eve HomeKit
 		rainbow.setDescription("Rainbow Animation");
+
+		ip_address.setDescription("IP Address");
 
 		V.setRange(5, 100, 1); // sets the range of the Brightness to be from a min
 							   // of 5%, to a max of 100%, in steps of 1%
@@ -283,6 +287,8 @@ struct DEV_Switch : Service::Switch
 
 ///////////////////////////////
 
+Pixel_Strand *STRIP;
+
 void setup()
 {
 
@@ -345,7 +351,7 @@ void setup()
 	new Service::HAPProtocolInformation();
 	new Characteristic::Version("1.1.0");
 
-	new Pixel_Strand(NEOPIXEL_PIN, 49);
+	STRIP = new Pixel_Strand(NEOPIXEL_PIN, 49);
 }
 
 ///////////////////////////////
@@ -360,6 +366,7 @@ void loop()
 
 void setupWeb()
 {
+	STRIP->ip_address.setString(WiFi.localIP().toString().c_str());
 	ElegantOTA.begin(&server); // Start ElegantOTA
 	server.begin();
 	LOG1("HTTP server started");
