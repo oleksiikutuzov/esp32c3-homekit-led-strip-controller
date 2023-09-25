@@ -180,6 +180,8 @@ struct Pixel_Strand
 		V.setRange(5, 100, 1); // sets the range of the Brightness to be from a min
 							   // of 5%, to a max of 100%, in steps of 1%
 
+		new SpanButton(BUTTON_PIN);
+
 		int bufSize = 0;
 
 		for (int i = 0; i < Effects.size(); i++)
@@ -228,6 +230,26 @@ struct Pixel_Strand
 			{
 				alarmTime = millis() + Effects[1]->update();
 			}
+	}
+
+	void button(int pin, int pressType) override
+	{
+
+		LOG1("Found button press on pin: ");
+		LOG1(pin);
+		LOG1("  type: ");
+		LOG1(pressType == SpanButton::LONG		 ? "LONG"
+			 : (pressType == SpanButton::SINGLE) ? "SINGLE"
+												 : "DOUBLE");
+		LOG1("\n");
+
+		int newLevel;
+
+		if (pressType == SpanButton::SINGLE)
+		{
+			power.setVal(1 - power.getVal()); // ...toggle the value of the power Characteristic
+			update();
+		}
 	}
 
 	//////////////
