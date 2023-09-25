@@ -89,197 +89,196 @@ void setupWeb();
 char sNumber[18] = "11:11:11:11:11:11";
 
 struct Pixel_Strand
-    : Service::LightBulb
+	: Service::LightBulb
 { // Addressable RGBW Pixel Strand of nPixel Pixels
 
-  struct SpecialEffect
-  {
-    Pixel_Strand *px;
-    const char *name;
+	struct SpecialEffect
+	{
+		Pixel_Strand *px;
+		const char *name;
 
-    SpecialEffect(Pixel_Strand *px, const char *name)
-    {
-      this->px = px;
-      this->name = name;
-      Serial.printf("Adding Effect %d: %s\n", px->Effects.size() + 1, name);
-    }
+		SpecialEffect(Pixel_Strand *px, const char *name)
+		{
+			this->px = px;
+			this->name = name;
+			Serial.printf("Adding Effect %d: %s\n", px->Effects.size() + 1, name);
+		}
 
-    virtual void init() {}
-    virtual uint32_t update() { return (60000); }
-    virtual int requiredBuffer() { return (0); }
-  };
+		virtual void init() {}
+		virtual uint32_t update() { return (60000); }
+		virtual int requiredBuffer() { return (0); }
+	};
 
-  Characteristic::On power{0, true};
-  Characteristic::Hue H{0, true};
-  Characteristic::Saturation S{100, true};
-  Characteristic::Brightness V{100, true};
-  Characteristic::RainbowEnabled rainbow{false, true};
+	Characteristic::On power{0, true};
+	Characteristic::Hue H{0, true};
+	Characteristic::Saturation S{100, true};
+	Characteristic::Brightness V{100, true};
+	Characteristic::RainbowEnabled rainbow{false, true};
 
-  vector<SpecialEffect *> Effects;
+	vector<SpecialEffect *> Effects;
 
-  Pixel *pixel;
-  int nPixels;
-  Pixel::Color *colors;
-  uint32_t alarmTime;
+	Pixel *pixel;
+	int nPixels;
+	Pixel::Color *colors;
+	uint32_t alarmTime;
 
-  Pixel_Strand(int pin, int nPixels) : Service::LightBulb()
-  {
+	Pixel_Strand(int pin, int nPixels) : Service::LightBulb()
+	{
 
-    pixel = new Pixel(
-        pin, RGBW);          // creates RGB/RGBW pixel LED on specified pin using default
-                             // timing parameters suitable for most SK68xx LEDs
-    this->nPixels = nPixels; // store number of Pixels in Strand
+		pixel = new Pixel(
+			pin, RGBW);			 // creates RGB/RGBW pixel LED on specified pin using default
+								 // timing parameters suitable for most SK68xx LEDs
+		this->nPixels = nPixels; // store number of Pixels in Strand
 
-    Effects.push_back(new ManualControl(this));
-    Effects.push_back(new Rainbow(this));
+		Effects.push_back(new ManualControl(this));
+		Effects.push_back(new Rainbow(this));
 
-    rainbow.setUnit(""); // configures custom "RainbowEnabled" characteristic
-                         // for use with Eve HomeKit
-    rainbow.setDescription("Rainbow Animation");
+		rainbow.setUnit(""); // configures custom "RainbowEnabled" characteristic
+							 // for use with Eve HomeKit
+		rainbow.setDescription("Rainbow Animation");
 
-    V.setRange(5, 100, 1); // sets the range of the Brightness to be from a min
-                           // of 5%, to a max of 100%, in steps of 1%
+		V.setRange(5, 100, 1); // sets the range of the Brightness to be from a min
+							   // of 5%, to a max of 100%, in steps of 1%
 
-    int bufSize = 0;
+		int bufSize = 0;
 
-    for (int i = 0; i < Effects.size(); i++)
-      bufSize = Effects[i]->requiredBuffer() > bufSize
-                    ? Effects[i]->requiredBuffer()
-                    : bufSize;
+		for (int i = 0; i < Effects.size(); i++)
+			bufSize = Effects[i]->requiredBuffer() > bufSize
+						  ? Effects[i]->requiredBuffer()
+						  : bufSize;
 
-    colors = (Pixel::Color *)calloc(
-        bufSize, sizeof(Pixel::Color)); // storage for dynamic pixel pattern
+		colors = (Pixel::Color *)calloc(
+			bufSize, sizeof(Pixel::Color)); // storage for dynamic pixel pattern
 
-    Serial.printf("\nConfigured Pixel_Strand on pin %d with %d pixels and %d "
-                  "effects.  Color buffer = %d pixels\n\n",
-                  pin, nPixels, Effects.size(), bufSize);
+		Serial.printf("\nConfigured Pixel_Strand on pin %d with %d pixels and %d "
+					  "effects.  Color buffer = %d pixels\n\n",
+					  pin, nPixels, Effects.size(), bufSize);
 
-    update();
-  }
+		update();
+	}
 
-  boolean update() override
-  {
+	boolean update() override
+	{
 
-    if (!power.getNewVal())
-    {
-      pixel->set(Pixel::Color().RGB(0, 0, 0, 0), this->nPixels);
-    }
-    else if (!rainbow.getNewVal())
-    {
-      Effects[0]->init();
-      if (rainbow.updated())
-        Serial.printf("Effect changed to: %s\n", Effects[0]->name);
-    }
-    else
-    {
-      Effects[1]->init();
-      alarmTime = millis() + Effects[1]->update();
-      if (rainbow.updated())
-        Serial.printf("Effect changed to: %s\n", Effects[1]->name);
-    }
-    return (true);
-  }
+		if (!power.getNewVal())
+		{
+			pixel->set(Pixel::Color().RGB(0, 0, 0, 0), this->nPixels);
+		}
+		else if (!rainbow.getNewVal())
+		{
+			Effects[0]->init();
+			if (rainbow.updated())
+				Serial.printf("Effect changed to: %s\n", Effects[0]->name);
+		}
+		else
+		{
+			Effects[1]->init();
+			alarmTime = millis() + Effects[1]->update();
+			if (rainbow.updated())
+				Serial.printf("Effect changed to: %s\n", Effects[1]->name);
+		}
+		return (true);
+	}
 
-  void loop() override
-  {
+	void loop() override
+	{
 
-    if (millis() > alarmTime && power.getVal())
-      if (rainbow.getVal())
-      {
-        alarmTime = millis() + Effects[1]->update();
-      }
-  }
+		if (millis() > alarmTime && power.getVal())
+			if (rainbow.getVal())
+			{
+				alarmTime = millis() + Effects[1]->update();
+			}
+	}
 
-  //////////////
+	//////////////
 
-  struct ManualControl : SpecialEffect
-  {
+	struct ManualControl : SpecialEffect
+	{
 
-    ManualControl(Pixel_Strand *px) : SpecialEffect{px, "Manual Control"} {}
+		ManualControl(Pixel_Strand *px) : SpecialEffect{px, "Manual Control"} {}
 
-    void init() override
-    {
+		void init() override
+		{
 
-      float h = px->H.getNewVal();
-      float s = px->S.getNewVal();
-      float v = px->V.getNewVal();
+			float h = px->H.getNewVal();
+			float s = px->S.getNewVal();
+			float v = px->V.getNewVal();
 
 #if RGBW
-      if (h == 30)
-      {
-        px->pixel->set(Pixel::Color().HSV(h, s, 0, v), px->nPixels);
-      }
-      else
-      {
-        px->pixel->set(Pixel::Color().HSV(h, s, v), px->nPixels);
-      }
+			if (h == 30)
+			{
+				px->pixel->set(Pixel::Color().HSV(h, s, 0, v), px->nPixels);
+			}
+			else
+			{
+				px->pixel->set(Pixel::Color().HSV(h, s, v), px->nPixels);
+			}
 #else
-      px->pixel->set(Pixel::Color().HSV(h, s, v), px->nPixels);
+			px->pixel->set(Pixel::Color().HSV(h, s, v), px->nPixels);
 #endif
-    }
-  };
+		}
+	};
 
-  //////////////
-  struct Rainbow : SpecialEffect
-  {
+	//////////////
+	struct Rainbow : SpecialEffect
+	{
 
-    int8_t *dir;
+		int8_t *dir;
 
-    Rainbow(Pixel_Strand *px) : SpecialEffect{px, "Rainbow"}
-    {
-      dir = (int8_t *)calloc(px->nPixels, sizeof(int8_t));
-    }
+		Rainbow(Pixel_Strand *px) : SpecialEffect{px, "Rainbow"}
+		{
+			dir = (int8_t *)calloc(px->nPixels, sizeof(int8_t));
+		}
 
-    void init() override
-    {
-      for (int i = 0; i < px->nPixels; i++)
-      {
-        px->colors[i].RGB(0, 0, 0, 0);
-        dir[i] = 0;
-      }
-    }
+		void init() override
+		{
+			for (int i = 0; i < px->nPixels; i++)
+			{
+				px->colors[i].RGB(0, 0, 0, 0);
+				dir[i] = 0;
+			}
+		}
 
-    uint32_t update() override
-    {
-      float value = px->V.getNewVal<float>();
-      for (int i = 0; i < px->nPixels; i++)
-      {
-        px->colors[i] = Pixel::Color().HSV(angle, 100, value);
-      }
-      px->pixel->set(px->colors, px->nPixels);
-      angle++;
-      if (angle == 360)
-        angle = 0;
-      return (100);
-    }
+		uint32_t update() override
+		{
+			float value = px->V.getNewVal<float>();
+			for (int i = 0; i < px->nPixels; i++)
+			{
+				px->colors[i] = Pixel::Color().HSV(angle, 100, value);
+			}
+			px->pixel->set(px->colors, px->nPixels);
+			angle++;
+			if (angle == 360)
+				angle = 0;
+			return (100);
+		}
 
-    int requiredBuffer() override { return (px->nPixels); }
-  };
+		int requiredBuffer() override { return (px->nPixels); }
+	};
 };
 
 struct DEV_Switch : Service::Switch
 {
+	int ledPin; // relay pin
+	SpanCharacteristic *power;
 
-  int ledPin; // relay pin
-  SpanCharacteristic *power;
+	// Constructor
+	DEV_Switch(int ledPin) : Service::Switch()
+	{
+		power = new Characteristic::On(0, true);
+		this->ledPin = ledPin;
+		pinMode(ledPin, OUTPUT);
 
-  // Constructor
-  DEV_Switch(int ledPin) : Service::Switch()
-  {
-    power = new Characteristic::On(0, true);
-    this->ledPin = ledPin;
-    pinMode(ledPin, OUTPUT);
+		digitalWrite(ledPin, power->getVal());
+	}
 
-    digitalWrite(ledPin, power->getVal());
-  }
+	// Override update method
+	boolean update()
+	{
+		digitalWrite(ledPin, power->getNewVal());
 
-  // Override update method
-  boolean update()
-  {
-    digitalWrite(ledPin, power->getNewVal());
-
-    return (true);
-  }
+		return (true);
+	}
 };
 
 ///////////////////////////////
@@ -287,85 +286,81 @@ struct DEV_Switch : Service::Switch
 void setup()
 {
 
-  Serial.begin(115200);
+	Serial.begin(115200);
 
-  Serial.print("Active firmware version: ");
-  Serial.println(FW_VERSION);
+	Serial.print("Active firmware version: ");
+	Serial.println(FW_VERSION);
 
-  String mode;
+	String mode;
 #if RGBW
-  mode = "-RGBW ";
+	mode = "-RGBW ";
 #else
-  mode = "-RGB ";
+	mode = "-RGB ";
 #endif
 
-  String temp = FW_VERSION;
-  const char compile_date[] = __DATE__ " " __TIME__;
-  char *fw_ver = new char[temp.length() + 30];
-  strcpy(fw_ver, temp.c_str());
-  strcat(fw_ver, mode.c_str());
-  strcat(fw_ver, " (");
-  strcat(fw_ver, compile_date);
-  strcat(fw_ver, ")");
+	String temp = FW_VERSION;
+	const char compile_date[] = __DATE__ " " __TIME__;
+	char *fw_ver = new char[temp.length() + 30];
+	strcpy(fw_ver, temp.c_str());
+	strcat(fw_ver, mode.c_str());
+	strcat(fw_ver, " (");
+	strcat(fw_ver, compile_date);
+	strcat(fw_ver, ")");
 
-  for (int i = 0; i < 17;
-       ++i) // we will iterate through each character in WiFi.macAddress() and
-            // copy it to the global char sNumber[]
-  {
-    sNumber[i] = WiFi.macAddress()[i];
-  }
-  sNumber[17] = '\0'; // the last charater needs to be a null
+	for (int i = 0; i < 17;
+		 ++i) // we will iterate through each character in WiFi.macAddress() and
+			  // copy it to the global char sNumber[]
+	{
+		sNumber[i] = WiFi.macAddress()[i];
+	}
+	sNumber[17] = '\0'; // the last charater needs to be a null
 
-  homeSpan.setSketchVersion(FW_VERSION); // set sketch version
-  homeSpan.setLogLevel(0);               // set log level to 0 (no logs)
-  homeSpan.setStatusPin(STATUS_PIN);     // set the status pin to GPIO32
-  homeSpan.setStatusAutoOff(10);         // disable led after 10 seconds
-  homeSpan.setWifiCallback(
-      setupWeb); // Set the callback function for wifi events
-  homeSpan.reserveSocketConnections(
-      5);                             // reserve 5 socket connections for Web Server
-  homeSpan.setControlPin(BUTTON_PIN); // set the control pin to GPIO0
-  homeSpan.setPortNum(88);            // set the port number to 81
-  homeSpan.enableAutoStartAP();       // enable auto start of AP
-  homeSpan.enableWebLog(10, "pool.ntp.org", "UTC-2:00",
-                        "myLog"); // enable Web Log
-  homeSpan.setSketchVersion(fw_ver);
+	homeSpan.setSketchVersion(FW_VERSION);							// set sketch version
+	homeSpan.setLogLevel(0);										// set log level to 0 (no logs)
+	homeSpan.setStatusPin(STATUS_PIN);								// set the status pin to GPIO32
+	homeSpan.setStatusAutoOff(10);									// disable led after 10 seconds
+	homeSpan.setWifiCallback(setupWeb);								// Set the callback function for wifi events
+	homeSpan.reserveSocketConnections(5);							// reserve 5 socket connections for Web Server
+	homeSpan.setControlPin(BUTTON_PIN);								// set the control pin to GPIO0
+	homeSpan.setPortNum(88);										// set the port number to 81
+	homeSpan.enableAutoStartAP();									// enable auto start of AP
+	homeSpan.enableWebLog(10, "pool.ntp.org", "UTC-2:00", "myLog"); // enable Web Log
+	homeSpan.setSketchVersion(fw_ver);
 
-  homeSpan.begin(Category::Lighting, "LED Strip Controller");
+	homeSpan.begin(Category::Lighting, "LED Strip Controller");
 
-  new SpanAccessory(1);
-  new Service::AccessoryInformation();
-  new Characteristic::Name("Controller");
-  new Characteristic::Manufacturer("HomeSpan");
-  new Characteristic::SerialNumber(sNumber);
+	new SpanAccessory(1);
+	new Service::AccessoryInformation();
+	new Characteristic::Name("Controller");
+	new Characteristic::Manufacturer("HomeSpan");
+	new Characteristic::SerialNumber(sNumber);
 #if RGBW
-  new Characteristic::Model("NeoPixel RGBW LEDs");
+	new Characteristic::Model("NeoPixel RGBW LEDs");
 #else
-  new Characteristic::Model("NeoPixel RGB LEDs");
+	new Characteristic::Model("NeoPixel RGB LEDs");
 #endif
-  new Characteristic::FirmwareRevision(temp.c_str());
-  new Characteristic::Identify();
+	new Characteristic::FirmwareRevision(temp.c_str());
+	new Characteristic::Identify();
 
-  new Service::HAPProtocolInformation();
-  new Characteristic::Version("1.1.0");
+	new Service::HAPProtocolInformation();
+	new Characteristic::Version("1.1.0");
 
-  new Pixel_Strand(NEOPIXEL_PIN, 49);
+	new Pixel_Strand(NEOPIXEL_PIN, 49);
 }
 
 ///////////////////////////////
 
 void loop()
 {
-  homeSpan.poll();
-  server.handleClient();
+	homeSpan.poll();
+	server.handleClient();
 }
 
 ///////////////////////////////
 
 void setupWeb()
 {
-
-  ElegantOTA.begin(&server); // Start ElegantOTA
-  server.begin();
-  LOG1("HTTP server started");
+	ElegantOTA.begin(&server); // Start ElegantOTA
+	server.begin();
+	LOG1("HTTP server started");
 } // setupWeb
