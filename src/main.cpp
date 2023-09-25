@@ -53,7 +53,6 @@ float angle = 0;
 
 #define REQUIRED VERSION(1, 7, 0) // Required HomeSpan version
 #define FW_VERSION "1.1.0"
-#define RGBW 0
 
 #include "HomeSpan.h"
 #include "extras/Pixel.h"
@@ -80,10 +79,12 @@ float angle = 0;
 
 // clang-format off
 CUSTOM_CHAR(RainbowEnabled, 00000001-0001-0001-0001-46637266EA00, PR + PW + EV, BOOL, 0, 0, 1, false);
-CUSTOM_CHAR_STRING(IPAddress, 00000006-0001-0001-0001-46637266EA00, PR + EV, "");
+CUSTOM_CHAR(RGBWEnabled, 00000002-0001-0001-0001-46637266EA00, PR + PW + EV, BOOL, 0, 0, 1, false);
+CUSTOM_CHAR_STRING(IPAddress, 00000003-0001-0001-0001-46637266EA00, PR + EV, "");
 // clang-format on
 
 WebServer server(80);
+bool rgbw_bool = 0;
 
 void setupWeb();
 
@@ -148,6 +149,7 @@ struct Pixel_Strand
 	Characteristic::Saturation S{100, true};
 	Characteristic::Brightness V{100, true};
 	Characteristic::RainbowEnabled rainbow{false, true};
+	Characteristic::RGBWEnabled rgbw{false, true};
 	Characteristic::IPAddress ip_address{"0.0.0.0"};
 
 	vector<SpecialEffect *> Effects;
@@ -160,17 +162,18 @@ struct Pixel_Strand
 	Pixel_Strand(int pin, int nPixels) : Service::LightBulb()
 	{
 
-		pixel = new Pixel(
-			pin, RGBW);			 // creates RGB/RGBW pixel LED on specified pin using default
-								 // timing parameters suitable for most SK68xx LEDs
-		this->nPixels = nPixels; // store number of Pixels in Strand
+		pixel = new Pixel(pin, rgbw.getVal()); // creates RGB/RGBW pixel LED on specified pin using default
+											   // timing parameters suitable for most SK68xx LEDs
+		this->nPixels = nPixels;			   // store number of Pixels in Strand
 
 		Effects.push_back(new ManualControl(this));
 		Effects.push_back(new Rainbow(this));
 
-		rainbow.setUnit(""); // configures custom "RainbowEnabled" characteristic
-							 // for use with Eve HomeKit
+		rainbow.setUnit("");
 		rainbow.setDescription("Rainbow Animation");
+
+		rgbw.setUnit("");
+		rgbw.setDescription("Enable RGBW Strip");
 
 		ip_address.setDescription("IP Address");
 
@@ -330,18 +333,18 @@ void setup()
 	Serial.print("Active firmware version: ");
 	Serial.println(FW_VERSION);
 
-	String mode;
-#if RGBW
-	mode = "-RGBW ";
-#else
-	mode = "-RGB ";
-#endif
+	// rgbw_bool = STRIP->rgbw.getVal();
+	// String mode;
+	// if (rgbw_bool)
+	// 	mode = "-RGBW ";
+	// else
+	// 	mode = "-RGB ";
 
 	String temp = FW_VERSION;
 	const char compile_date[] = __DATE__ " " __TIME__;
 	char *fw_ver = new char[temp.length() + 30];
 	strcpy(fw_ver, temp.c_str());
-	strcat(fw_ver, mode.c_str());
+	// strcat(fw_ver, mode.c_str());
 	strcat(fw_ver, " (");
 	strcat(fw_ver, compile_date);
 	strcat(fw_ver, ")");
