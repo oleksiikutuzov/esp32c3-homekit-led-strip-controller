@@ -266,18 +266,21 @@ struct Pixel_Strand
 			float s = px->S.getNewVal();
 			float v = px->V.getNewVal();
 
-#if RGBW
-			if (h == 30)
+			if (px->rgbw.getVal())
 			{
-				px->pixel->set(Pixel::Color().HSV(h, s, 0, v), px->nPixels);
+				if (h == 30)
+				{
+					px->pixel->set(Pixel::Color().HSV(h, s, 0, v), px->nPixels);
+				}
+				else
+				{
+					px->pixel->set(Pixel::Color().HSV(h, s, v), px->nPixels);
+				}
 			}
 			else
 			{
 				px->pixel->set(Pixel::Color().HSV(h, s, v), px->nPixels);
 			}
-#else
-			px->pixel->set(Pixel::Color().HSV(h, s, v), px->nPixels);
-#endif
 		}
 	};
 
@@ -371,9 +374,8 @@ void setup()
 	strcat(fw_ver, compile_date);
 	strcat(fw_ver, ")");
 
-	for (int i = 0; i < 17;
-		 ++i) // we will iterate through each character in WiFi.macAddress() and
-			  // copy it to the global char sNumber[]
+	for (int i = 0; i < 17; ++i) // we will iterate through each character in WiFi.macAddress()
+								 // and copy it to the global char sNumber[]
 	{
 		sNumber[i] = WiFi.macAddress()[i];
 	}
@@ -398,11 +400,7 @@ void setup()
 	new Characteristic::Name("Controller");
 	new Characteristic::Manufacturer("HomeSpan");
 	new Characteristic::SerialNumber(sNumber);
-#if RGBW
-	new Characteristic::Model("NeoPixel RGBW LEDs");
-#else
-	new Characteristic::Model("NeoPixel RGB LEDs");
-#endif
+	new Characteristic::Model("NeoPixel LEDs");
 	new Characteristic::FirmwareRevision(temp.c_str());
 	new Characteristic::Identify();
 
