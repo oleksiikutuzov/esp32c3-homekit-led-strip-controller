@@ -74,6 +74,7 @@ float angle = 0;
 #define MOSFET_PIN 7
 #define BUTTON_PIN 3
 #define STATUS_PIN 6
+#define MAX_LEDS 120
 
 #endif
 
@@ -81,6 +82,7 @@ float angle = 0;
 CUSTOM_CHAR(RainbowEnabled, 00000001-0001-0001-0001-46637266EA00, PR + PW + EV, BOOL, 0, 0, 1, false);
 CUSTOM_CHAR(RGBWEnabled, 00000002-0001-0001-0001-46637266EA00, PR + PW + EV, BOOL, 0, 0, 1, false);
 CUSTOM_CHAR_STRING(IPAddress, 00000003-0001-0001-0001-46637266EA00, PR + EV, "");
+CUSTOM_CHAR(NumLeds, 00000004-0001-0001-0001-46637266EA00, PR + PW + EV, UINT8, 90, 1, MAX_LEDS, false);
 // clang-format on
 
 WebServer server(80);
@@ -151,6 +153,7 @@ struct Pixel_Strand
 	Characteristic::RainbowEnabled rainbow{false, true};
 	Characteristic::RGBWEnabled rgbw{false, true};
 	Characteristic::IPAddress ip_address{"0.0.0.0"};
+	Characteristic::NumLeds num_leds{90, true};
 
 	vector<SpecialEffect *> Effects;
 
@@ -159,12 +162,11 @@ struct Pixel_Strand
 	Pixel::Color *colors;
 	uint32_t alarmTime;
 
-	Pixel_Strand(int pin, int nPixels) : Service::LightBulb()
+	Pixel_Strand(int pin) : Service::LightBulb()
 	{
 
 		pixel = new Pixel(pin, rgbw.getVal()); // creates RGB/RGBW pixel LED on specified pin using default
 											   // timing parameters suitable for most SK68xx LEDs
-		this->nPixels = nPixels;			   // store number of Pixels in Strand
 
 		Effects.push_back(new ManualControl(this));
 		Effects.push_back(new Rainbow(this));
@@ -177,10 +179,16 @@ struct Pixel_Strand
 
 		ip_address.setDescription("IP Address");
 
+		num_leds.setUnit(""); // configures custom "Selector" characteristic for use with Eve HomeKit
+		num_leds.setDescription("Number of LEDs");
+		num_leds.setRange(1, MAX_LEDS, 1);
+
 		V.setRange(5, 100, 1); // sets the range of the Brightness to be from a min
 							   // of 5%, to a max of 100%, in steps of 1%
 
 		new SpanButton(BUTTON_PIN);
+
+		this->nPixels = num_leds.getNewVal(); // store number of Pixels in Strand
 
 		int bufSize = 0;
 
@@ -194,7 +202,7 @@ struct Pixel_Strand
 
 		Serial.printf("\nConfigured Pixel_Strand on pin %d with %d pixels and %d "
 					  "effects.  Color buffer = %d pixels\n\n",
-					  pin, nPixels, Effects.size(), bufSize);
+					  pin, this->nPixels, Effects.size(), bufSize);
 
 		update();
 	}
@@ -400,7 +408,7 @@ void setup()
 	new Service::HAPProtocolInformation();
 	new Characteristic::Version("1.1.0");
 
-	STRIP = new Pixel_Strand(NEOPIXEL_PIN, 49);
+	STRIP = new Pixel_Strand(NEOPIXEL_PIN);
 
 	LOG0("Adding Accessory: Switch\n");
 
