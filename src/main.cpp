@@ -358,13 +358,6 @@ void setup()
 	Serial.print("Active firmware version: ");
 	Serial.println(FW_VERSION);
 
-	// rgbw_bool = STRIP->rgbw.getVal();
-	// String mode;
-	// if (rgbw_bool)
-	// 	mode = "-RGBW ";
-	// else
-	// 	mode = "-RGB ";
-
 	String temp = FW_VERSION;
 	const char compile_date[] = __DATE__ " " __TIME__;
 	char *fw_ver = new char[temp.length() + 30];
@@ -408,6 +401,14 @@ void setup()
 	new Characteristic::Version("1.1.0");
 
 	STRIP = new Pixel_Strand(NEOPIXEL_PIN, 49);
+
+	LOG0("Adding Accessory: Switch\n");
+
+	new SpanAccessory(2);
+	new Service::AccessoryInformation();
+	new Characteristic::Name("Switch");
+	new Characteristic::Identify();
+	new DEV_Switch(MOSFET_PIN);
 }
 
 ///////////////////////////////
