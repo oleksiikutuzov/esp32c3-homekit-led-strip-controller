@@ -1,52 +1,27 @@
 /*********************************************************************************
+ *
  *  MIT License
  *
- *  Copyright (c) 2022 Gregg E. Berman
- *
- *  https://github.com/HomeSpan/HomeSpan
- *
- *  Permission is hereby granted, free of charge, to any person obtaining a copy
- *  of this software and associated documentation files (the "Software"), to
- *deal in the Software without restriction, including without limitation the
- *rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- *sell copies of the Software, and to permit persons to whom the Software is
- *  furnished to do so, subject to the following conditions:
- *
- *  The above copyright notice and this permission notice shall be included in
- *all copies or substantial portions of the Software.
- *
- *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- *  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- *  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- *  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- *FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- *IN THE SOFTWARE.
+ *  Copyright (c) 2023 Oleksii Kutuzov
  *
  ********************************************************************************/
 
 /*
- *                ESP-WROOM-32 Utilized pins
- *              ╔═════════════════════════════╗
- *              ║┌─┬─┐  ┌──┐  ┌─┐             ║
- *              ║│ | └──┘  └──┘ |             ║
- *              ║│ |            |             ║
- *              ╠═════════════════════════════╣
- *          +++ ║GND                       GND║ +++
- *          +++ ║3.3V                     IO23║ USED_FOR_NOTHING
- *              ║                         IO22║
- *              ║IO36                      IO1║ TX
- *              ║IO39                      IO3║ RX
- *              ║IO34                     IO21║
- *              ║IO35                         ║ NC
- *      RED_LED ║IO32                     IO19║
- *              ║IO33                     IO18║ RELAY
- *              ║IO25                      IO5║
- *              ║IO26                     IO17║ NEOPIXEL_RGB
- *              ║IO27                     IO16║ NEOPIXEL_RGBW
- *              ║IO14                      IO4║
- *              ║IO12                      IO0║ +++, BUTTON
- *              ╚═════════════════════════════╝
+ *                     ESP32-C3-MINI Utilized pins
+ *                   ╔═════════════════════════════╗
+ *        RST_BUTTON ║ EN                      3V3 ║ +++
+ *                   ║                             ║
+ *                   ║ IO0                     IO7 ║ MOSFET_PIN
+ *                   ║ IO1                     IO8 ║ BOOT_CONFIG
+ *       BOOT_CONFIG ║ IO2                     IO9 ║ BOOT_BUTTON
+ *        BUTTON_PIN ║ IO3                    IO10 ║
+ *      NEOPIXEL_PIN ║ IO4                    IO18 ║ DATA-
+ *         EXTRA_LED ║ IO5                    IO19 ║ DATA+
+ *        STATUS_LED ║ IO6                         ║
+ *                   ║                             ║
+ *               TXD ║ TXD                         ║
+ *               RXD ║ RXD                     GND ║ +++
+ *                   ╚═════════════════════════════╝
  */
 
 #define REQUIRED VERSION(1, 7, 0) // Required HomeSpan version
@@ -130,7 +105,7 @@ void setup()
 
 	homeSpan.setSketchVersion(FW_VERSION);							// set sketch version
 	homeSpan.setLogLevel(0);										// set log level to 0 (no logs)
-	homeSpan.setStatusPin(STATUS_PIN);								// set the status pin to GPIO32
+	homeSpan.setStatusPin(STATUS_LED);								// set the status pin to GPIO32
 	homeSpan.setStatusAutoOff(10);									// disable led after 10 seconds
 	homeSpan.setWifiCallback(setupWeb);								// Set the callback function for wifi events
 	homeSpan.reserveSocketConnections(5);							// reserve 5 socket connections for Web Server

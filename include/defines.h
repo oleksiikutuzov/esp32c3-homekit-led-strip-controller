@@ -13,7 +13,8 @@
 #define NEOPIXEL_PIN 4
 #define MOSFET_PIN 7
 #define BUTTON_PIN 3
-#define STATUS_PIN 6
+#define EXTRA_LED 5
+#define STATUS_LED 6
 #define MAX_LEDS 120
 
 #endif
