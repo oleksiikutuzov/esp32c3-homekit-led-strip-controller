@@ -71,7 +71,9 @@ struct DEV_Pixel_Strand : Service::LightBulb
         V.setRange(5, 100, 1); // sets the range of the Brightness to be from a min
                                // of 5%, to a max of 100%, in steps of 1%
 
+#ifndef SWITCH_ONLY
         new SpanButton(BUTTON_PIN);
+#endif
 
         this->nPixels = num_leds.getNewVal(); // store number of Pixels in Strand
 
@@ -125,6 +127,7 @@ struct DEV_Pixel_Strand : Service::LightBulb
             }
     }
 
+#ifndef SWITCH_ONLY
     void button(int pin, int pressType) override
     {
 
@@ -144,6 +147,7 @@ struct DEV_Pixel_Strand : Service::LightBulb
             update();
         }
     }
+#endif
 
     //////////////
 

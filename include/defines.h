@@ -15,6 +15,6 @@
 #define BUTTON_PIN 3
 #define EXTRA_LED 5
 #define STATUS_LED 6
-#define MAX_LEDS 120
+#define MAX_LEDS 150
 
 #endif

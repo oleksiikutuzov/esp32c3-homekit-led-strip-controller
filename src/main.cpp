@@ -117,7 +117,8 @@ void setup()
 
 	homeSpan.begin(Category::Lighting, "LED Strip Controller");
 
-	new SpanAccessory(1);
+#ifndef SWITCH_ONLY
+	new SpanAccessory();
 	new Service::AccessoryInformation();
 	new Characteristic::Name("Controller");
 	new Characteristic::Manufacturer("HomeSpan");
@@ -130,14 +131,18 @@ void setup()
 	new Characteristic::Version("1.1.0");
 
 	STRIP = new DEV_Pixel_Strand(NEOPIXEL_PIN);
+#endif
 
+#ifdef SWITCH_ONLY
 	LOG0("Adding Accessory: Switch\n");
 
-	new SpanAccessory(2);
+	new SpanAccessory();
 	new Service::AccessoryInformation();
 	new Characteristic::Name("Switch");
 	new Characteristic::Identify();
+
 	new DEV_Switch(MOSFET_PIN);
+#endif
 }
 
 ///////////////////////////////

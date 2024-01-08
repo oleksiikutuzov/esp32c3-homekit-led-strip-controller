@@ -23,4 +23,24 @@ struct DEV_Switch : Service::Switch
 
         return (true);
     }
+
+    // void button(int pin, int pressType) override
+    // {
+
+    //     LOG1("Found button press on pin: ");
+    //     LOG1(pin);
+    //     LOG1("  type: ");
+    //     LOG1(pressType == SpanButton::LONG       ? "LONG"
+    //          : (pressType == SpanButton::SINGLE) ? "SINGLE"
+    //                                              : "DOUBLE");
+    //     LOG1("\n");
+
+    //     int newLevel;
+
+    //     if (pressType == SpanButton::SINGLE)
+    //     {
+    //         power.setVal(1 - power.getVal()); // ...toggle the value of the power Characteristic
+    //         update();
+    //     }
+    // }
 };
