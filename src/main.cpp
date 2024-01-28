@@ -53,7 +53,7 @@ float angle = 0;
 
 #define REQUIRED VERSION(1, 7, 0) // Required HomeSpan version
 #define FW_VERSION "1.1.0"
-#define RGBW 0
+#define RGBW 1
 
 #include "HomeSpan.h"
 #include "extras/Pixel.h"
@@ -251,7 +251,7 @@ struct Pixel_Strand
 				px->colors[i] = Pixel::Color().HSV(angle, 100, value);
 			}
 			px->pixel->set(px->colors, px->nPixels);
-			angle++;
+			angle = angle + 0.5;
 			if (angle == 360)
 				angle = 0;
 			return (100);
@@ -351,7 +351,7 @@ void setup()
 	new Service::HAPProtocolInformation();
 	new Characteristic::Version("1.1.0");
 
-	STRIP = new Pixel_Strand(NEOPIXEL_PIN, 49);
+	STRIP = new Pixel_Strand(NEOPIXEL_PIN, 150);
 }
 
 ///////////////////////////////
