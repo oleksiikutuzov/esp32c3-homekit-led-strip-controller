@@ -81,6 +81,7 @@ float angle = 0;
 CUSTOM_CHAR(RainbowEnabled, 00000001-0001-0001-0001-46637266EA00, PR + PW + EV, BOOL, 0, 0, 1, false);
 CUSTOM_CHAR(RGBWEnabled, 00000002-0001-0001-0001-46637266EA00, PR + PW + EV, BOOL, 0, 0, 1, false);
 CUSTOM_CHAR_STRING(IPAddress, 00000003-0001-0001-0001-46637266EA00, PR + EV, "");
+CUSTOM_CHAR(RainbowSpeed, 00000004-0001-0001-0001-46637266EA00, PR + PW + EV, UINT8, 1, 1, 10, false);
 // clang-format on
 
 WebServer server(80);
@@ -149,6 +150,7 @@ struct Pixel_Strand
 	Characteristic::Saturation S{100, true};
 	Characteristic::Brightness V{100, true};
 	Characteristic::RainbowEnabled rainbow{false, true};
+	Characteristic::RainbowSpeed rainbow_speed{1, true};
 	Characteristic::RGBWEnabled rgbw{false, true};
 	Characteristic::IPAddress ip_address{"0.0.0.0"};
 
@@ -171,6 +173,10 @@ struct Pixel_Strand
 
 		rainbow.setUnit("");
 		rainbow.setDescription("Rainbow Animation");
+
+		rainbow_speed.setUnit("");
+		rainbow_speed.setDescription("Rainbow Speed");
+		rainbow_speed.setRange(1, 10, 1);
 
 		rgbw.setUnit("");
 		rgbw.setDescription("Enable RGBW Strip");
@@ -312,10 +318,10 @@ struct Pixel_Strand
 				px->colors[i] = Pixel::Color().HSV(angle, 100, value);
 			}
 			px->pixel->set(px->colors, px->nPixels);
-			angle++;
+			angle = angle + 0.1;
 			if (angle == 360)
 				angle = 0;
-			return (100);
+			return (50 / px->rainbow_speed.getVal());
 		}
 
 		int requiredBuffer() override { return (px->nPixels); }
@@ -382,7 +388,7 @@ void setup()
 	sNumber[17] = '\0'; // the last charater needs to be a null
 
 	homeSpan.setSketchVersion(FW_VERSION);							// set sketch version
-	homeSpan.setLogLevel(0);										// set log level to 0 (no logs)
+	homeSpan.setLogLevel(1);										// set log level to 0 (no logs)
 	homeSpan.setStatusPin(STATUS_PIN);								// set the status pin to GPIO32
 	homeSpan.setStatusAutoOff(10);									// disable led after 10 seconds
 	homeSpan.setWifiCallback(setupWeb);								// Set the callback function for wifi events
