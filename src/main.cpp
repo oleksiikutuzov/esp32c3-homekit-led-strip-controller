@@ -8,6 +8,8 @@
 
 #define REQUIRED VERSION(1, 7, 0) // Required HomeSpan version
 #define FW_VERSION "1.1.0"
+#define MAX_LEDS 150
+#define DEFAULT_LEDS 90
 
 #include "HomeSpan.h"
 #include "extras/Pixel.h"
@@ -19,18 +21,19 @@
 
 #define NEOPIXEL_PIN 16
 
-#elif defined(CONFIG_IDF_TARGET_ESP32S2)
-
-#define NEOPIXEL_PIN 38
-
 #elif defined(CONFIG_IDF_TARGET_ESP32C3)
 
 #define NEOPIXEL_PIN 4
 #define MOSFET_PIN 7
 #define BUTTON_PIN 3
 #define STATUS_PIN 6
-#define MAX_LEDS 150
-#define DEFAULT_LEDS 90
+
+#elif defined(CONFIG_IDF_TARGET_ESP32C6)
+
+#define NEOPIXEL_PIN 4
+#define MOSFET_PIN 7
+#define BUTTON_PIN 3
+#define STATUS_PIN 6
 
 #endif
 
