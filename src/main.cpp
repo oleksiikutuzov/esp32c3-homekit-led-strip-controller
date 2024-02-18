@@ -29,6 +29,8 @@
 #define MOSFET_PIN 7
 #define BUTTON_PIN 3
 #define STATUS_PIN 6
+#define MAX_LEDS 150
+#define DEFAULT_LEDS 90
 
 #endif
 
@@ -37,6 +39,7 @@ CUSTOM_CHAR(RainbowEnabled, 00000001-0001-0001-0001-46637266EA00, PR + PW + EV, 
 CUSTOM_CHAR(RGBWEnabled, 00000002-0001-0001-0001-46637266EA00, PR + PW + EV, BOOL, 0, 0, 1, false);
 CUSTOM_CHAR_STRING(IPAddress, 00000003-0001-0001-0001-46637266EA00, PR + EV, "");
 CUSTOM_CHAR(RainbowSpeed, 00000004-0001-0001-0001-46637266EA00, PR + PW + EV, UINT8, 1, 1, 10, false);
+CUSTOM_CHAR(NumLeds, 00000005-0001-0001-0001-46637266EA00, PR + PW + EV, UINT8, DEFAULT_LEDS, 1, MAX_LEDS, false);
 // clang-format on
 
 WebServer server(80);
@@ -108,20 +111,20 @@ struct Pixel_Strand
 	Characteristic::RainbowSpeed rainbow_speed{1, true};
 	Characteristic::RGBWEnabled rgbw{false, true};
 	Characteristic::IPAddress ip_address{"0.0.0.0"};
+	Characteristic::NumLeds num_leds{DEFAULT_LEDS, true};
 
 	vector<SpecialEffect *> Effects;
 
 	Pixel *pixel;
-	int nPixels;
+	int nPixels = num_leds.getVal();
 	Pixel::Color *colors;
 	uint32_t alarmTime;
 
-	Pixel_Strand(int pin, int nPixels) : Service::LightBulb()
+	Pixel_Strand(int pin) : Service::LightBulb()
 	{
 
 		pixel = new Pixel(pin, rgbw.getVal()); // creates RGB/RGBW pixel LED on specified pin using default
 											   // timing parameters suitable for most SK68xx LEDs
-		this->nPixels = nPixels;			   // store number of Pixels in Strand
 
 		Effects.push_back(new ManualControl(this));
 		Effects.push_back(new Rainbow(this));
@@ -137,6 +140,10 @@ struct Pixel_Strand
 		rgbw.setDescription("Enable RGBW Strip");
 
 		ip_address.setDescription("IP Address");
+
+		num_leds.setUnit(""); // configures custom "Selector" characteristic for use with Eve HomeKit
+		num_leds.setDescription("Number of LEDs");
+		num_leds.setRange(1, MAX_LEDS, 1);
 
 		V.setRange(5, 100, 1); // sets the range of the Brightness to be from a min
 							   // of 5%, to a max of 100%, in steps of 1%
@@ -336,7 +343,7 @@ void setup()
 	sNumber[17] = '\0'; // the last charater needs to be a null
 
 	homeSpan.setSketchVersion(FW_VERSION);							// set sketch version							// set the status pin to GPIO32
-	homeSpan.setLogLevel(1);										// set log level to 0 (no logs)
+	homeSpan.setLogLevel(0);										// set log level to 0 (no logs)
 	homeSpan.setStatusPin(STATUS_PIN);								// set the status pin to GPIO32
 	homeSpan.setStatusAutoOff(10);									// disable led after 10 seconds
 	homeSpan.setWifiCallback(setupWeb);								// Set the callback function for wifi events
@@ -361,7 +368,7 @@ void setup()
 	new Service::HAPProtocolInformation();
 	new Characteristic::Version("1.1.0");
 
-	STRIP = new Pixel_Strand(NEOPIXEL_PIN, 49);
+	STRIP = new Pixel_Strand(NEOPIXEL_PIN);
 }
 
 ///////////////////////////////
@@ -383,5 +390,10 @@ void setupWeb()
 	ElegantOTA.onProgress(onOTAProgress);
 	ElegantOTA.onEnd(onOTAEnd);
 	server.begin();
-	LOG1("HTTP server started");
+	LOG1("HTTP server started\n");
+
+	if (homeSpan.updateDatabase())
+		Serial.printf("Accessories Database updated.  New configuration number broadcasted...\n\n");
+	else
+		Serial.printf("Nothing to update - no changes were made!\n\n");
 } // setupWeb
