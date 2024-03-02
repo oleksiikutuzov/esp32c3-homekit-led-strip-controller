@@ -6,12 +6,13 @@
  *
  ********************************************************************************/
 
-#define REQUIRED VERSION(1, 7, 0) // Required HomeSpan version
+#define REQUIRED VERSION(1, 9, 0) // Required HomeSpan version
 #define FW_VERSION "1.1.0"
 
 #include "HomeSpan.h"
 #include "defines.h"
 #include "DEV_Pixel_Strand.h"
+#include "DEV_Switch.h"
 #include "extras/Pixel.h"
 #include <ElegantOTA.h>
 #include <WebServer.h>
@@ -29,6 +30,7 @@ unsigned long ota_progress_millis = 0;
 WebServer server(80);
 
 DEV_Pixel_Strand *STRIP;
+DEV_Switch *SWITCH;
 
 void setup()
 {
@@ -80,7 +82,11 @@ void setup()
 	new Service::HAPProtocolInformation();
 	new Characteristic::Version("1.1.0");
 
+#ifndef DEV_SWITCH
 	STRIP = new DEV_Pixel_Strand(NEOPIXEL_PIN);
+#else
+	SWITCH = new DEV_Switch(MOSFET_PIN);
+#endif
 }
 
 ///////////////////////////////
@@ -127,7 +133,12 @@ void onOTAEnd(bool success)
 
 void setupWeb()
 {
+#ifndef DEV_SWITCH
 	STRIP->ip_address.setString(WiFi.localIP().toString().c_str());
+#else
+	SWITCH->ip_address->setString(WiFi.localIP().toString().c_str());
+#endif
+
 	ElegantOTA.begin(&server); // Start ElegantOTA
 	ElegantOTA.onStart(onOTAStart);
 	ElegantOTA.onProgress(onOTAProgress);

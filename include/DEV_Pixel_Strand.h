@@ -9,14 +9,6 @@
 #include "HomeSpan.h"
 #include "defines.h"
 
-// clang-format off
-CUSTOM_CHAR(RainbowEnabled, 00000001-0001-0001-0001-46637266EA00, PR + PW + EV, BOOL, 0, 0, 1, false);
-CUSTOM_CHAR(RGBWEnabled, 00000002-0001-0001-0001-46637266EA00, PR + PW + EV, BOOL, 0, 0, 1, false);
-CUSTOM_CHAR_STRING(IPAddress, 00000003-0001-0001-0001-46637266EA00, PR + EV, "");
-CUSTOM_CHAR(RainbowSpeed, 00000004-0001-0001-0001-46637266EA00, PR + PW + EV, UINT8, 1, 1, 10, false);
-CUSTOM_CHAR(NumLeds, 00000005-0001-0001-0001-46637266EA00, PR + PW + EV, UINT8, DEFAULT_LEDS, 1, MAX_LEDS, false);
-// clang-format on
-
 float angle = 0;
 
 struct DEV_Pixel_Strand
