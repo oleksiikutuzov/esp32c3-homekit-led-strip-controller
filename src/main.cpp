@@ -7,7 +7,7 @@
  ********************************************************************************/
 
 #define REQUIRED VERSION(1, 9, 0) // Required HomeSpan version
-#define FW_VERSION "1.1.0"
+#define FW_VERSION "2.0.0"
 
 #include "HomeSpan.h"
 #include "defines.h"
@@ -68,6 +68,7 @@ void setup()
 	homeSpan.enableWebLog(10, "pool.ntp.org", "UTC-2:00", "myLog"); // enable Web Log
 	homeSpan.setSketchVersion(fw_ver);
 
+#ifndef DEV_SWITCH
 	homeSpan.begin(Category::Lighting, "LED Strip Controller");
 
 	new SpanAccessory(1);
@@ -82,9 +83,22 @@ void setup()
 	new Service::HAPProtocolInformation();
 	new Characteristic::Version("1.1.0");
 
-#ifndef DEV_SWITCH
 	STRIP = new DEV_Pixel_Strand(NEOPIXEL_PIN);
 #else
+	homeSpan.begin(Category::Outlets, "Switch");
+
+	new SpanAccessory(1);
+	new Service::AccessoryInformation();
+	new Characteristic::Name("Controller");
+	new Characteristic::Manufacturer("HomeSpan");
+	new Characteristic::SerialNumber(sNumber);
+	new Characteristic::Model("Mosfet Switch");
+	new Characteristic::FirmwareRevision(temp.c_str());
+	new Characteristic::Identify();
+
+	new Service::HAPProtocolInformation();
+	new Characteristic::Version("1.1.0");
+
 	SWITCH = new DEV_Switch(MOSFET_PIN);
 #endif
 }
