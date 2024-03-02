@@ -23,6 +23,10 @@ struct DEV_Switch : Service::Switch
         this->ledPin = ledPin;
         pinMode(ledPin, OUTPUT);
 
+#ifdef OPTIONAL_LED
+        pinMode(OPTIONAL_LED, OUTPUT);
+#endif
+
         digitalWrite(ledPin, power->getVal());
 
         new SpanButton(BUTTON_PIN);
@@ -32,6 +36,10 @@ struct DEV_Switch : Service::Switch
     boolean update()
     {
         digitalWrite(ledPin, power->getNewVal());
+
+#ifdef OPTIONAL_LED
+        digitalWrite(OPTIONAL_LED, power->getNewVal());
+#endif
 
         return (true);
     }

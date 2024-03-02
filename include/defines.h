@@ -25,6 +25,10 @@
 #define MAX_LEDS 150
 #define DEFAULT_LEDS 90
 
+#ifdef DEV_SWITCH
+#define OPTIONAL_LED 5
+#endif
+
 #endif
 
 // clang-format off
