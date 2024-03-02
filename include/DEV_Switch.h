@@ -14,6 +14,7 @@ struct DEV_Switch : Service::Switch
     int ledPin; // relay pin
     SpanCharacteristic *power;
     SpanCharacteristic *ip_address;
+    SpanCharacteristic *switch_led;
 
     // Constructor
     DEV_Switch(int ledPin) : Service::Switch()
@@ -24,7 +25,15 @@ struct DEV_Switch : Service::Switch
         pinMode(ledPin, OUTPUT);
 
 #ifdef OPTIONAL_LED
+        switch_led = new Characteristic::SwitchLed(true, true);
+
+        switch_led->setUnit("");
+        switch_led->setDescription("Switch Status LED");
+
         pinMode(OPTIONAL_LED, OUTPUT);
+
+        if (switch_led->getVal())
+            digitalWrite(OPTIONAL_LED, power->getVal());
 #endif
 
         digitalWrite(ledPin, power->getVal());
@@ -38,7 +47,10 @@ struct DEV_Switch : Service::Switch
         digitalWrite(ledPin, power->getNewVal());
 
 #ifdef OPTIONAL_LED
-        digitalWrite(OPTIONAL_LED, power->getNewVal());
+        if (switch_led->getNewVal())
+            digitalWrite(OPTIONAL_LED, power->getNewVal());
+        else
+            digitalWrite(OPTIONAL_LED, LOW);
 #endif
 
         return (true);
