@@ -24,6 +24,8 @@ struct DEV_Switch : Service::Switch
         this->ledPin = ledPin;
         pinMode(ledPin, OUTPUT);
 
+        ip_address->setDescription("IP Address");
+
 #ifdef OPTIONAL_LED
         switch_led = new Characteristic::SwitchLed(true, true);
 
