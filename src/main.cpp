@@ -7,7 +7,7 @@
  ********************************************************************************/
 
 #define REQUIRED VERSION(1, 9, 0) // Required HomeSpan version
-#define FW_VERSION "2.0.0"
+#define FW_VERSION "2.0.1"
 
 #include "HomeSpan.h"
 #include "defines.h"
