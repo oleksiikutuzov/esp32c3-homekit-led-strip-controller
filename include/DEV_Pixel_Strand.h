@@ -51,9 +51,10 @@ struct DEV_Pixel_Strand
 
 	DEV_Pixel_Strand(int pin) : Service::LightBulb()
 	{
-
-		pixel = new Pixel(pin, rgbw.getVal()); // creates RGB/RGBW pixel LED on specified pin using default
-											   // timing parameters suitable for most SK68xx LEDs
+		if (rgbw.getVal())
+			pixel = new Pixel(pin, PixelType::GRBW); // creates RGBW pixel LED on specified pin using default
+		else
+			pixel = new Pixel(pin, PixelType::GRB); // RGB  
 
 		Effects.push_back(new ManualControl(this));
 		Effects.push_back(new Rainbow(this));
