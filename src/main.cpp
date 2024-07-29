@@ -6,8 +6,8 @@
  *
  ********************************************************************************/
 
-#define REQUIRED VERSION(1, 9, 0) // Required HomeSpan version
-#define FW_VERSION "2.0.1"
+#define REQUIRED VERSION(1, 9, 1) // Required HomeSpan version
+#define FW_VERSION "2.1.0"
 
 #include "HomeSpan.h"
 #include "defines.h"
@@ -61,7 +61,6 @@ void setup()
 	homeSpan.setStatusPin(STATUS_PIN);								// set the status pin to GPIO32
 	homeSpan.setStatusAutoOff(10);									// disable led after 10 seconds
 	homeSpan.setWifiCallback(setupWeb);								// Set the callback function for wifi events
-	homeSpan.reserveSocketConnections(5);							// reserve 5 socket connections for Web Server
 	homeSpan.setControlPin(BUTTON_PIN);								// set the control pin to GPIO0
 	homeSpan.setPortNum(88);										// set the port number to 81
 	homeSpan.enableAutoStartAP();									// enable auto start of AP
