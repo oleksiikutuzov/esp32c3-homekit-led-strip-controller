@@ -54,7 +54,7 @@ struct DEV_Pixel_Strand
 		if (rgbw.getVal())
 			pixel = new Pixel(pin, PixelType::GRBW); // creates RGBW pixel LED on specified pin using default
 		else
-			pixel = new Pixel(pin, PixelType::GRB); // RGB  
+			pixel = new Pixel(pin, PixelType::GRB); // RGB
 
 		Effects.push_back(new ManualControl(this));
 		Effects.push_back(new Rainbow(this));
@@ -99,6 +99,19 @@ struct DEV_Pixel_Strand
 
 	boolean update() override
 	{
+		if (power.updated())
+			{
+				if (power.getNewVal())
+				{
+					// Power is turned on, fade in
+					fade(H.getVal(), S.getVal(), 0.0, V.getVal());
+				}
+				else
+				{
+					// Power is turned off, fade out
+					fade(H.getVal(), S.getVal(), V.getVal(), 0.0);
+				}
+			}
 
 		if (!power.getNewVal())
 		{
@@ -119,6 +132,33 @@ struct DEV_Pixel_Strand
 		}
 		return (true);
 	}
+
+	void fade(float h, float s, float v_start, float v_end)
+		{
+			const int fadeSteps = 50; // Number of steps for the fade effect
+			const int delayTime = 10; // Delay between steps in milliseconds
+
+			for (int i = 0; i <= fadeSteps; ++i)
+			{
+				float v = v_start + (v_end - v_start) * i / fadeSteps;
+				if (rgbw.getVal())
+				{
+					if (h == 30)
+					{
+						pixel->set(Pixel::Color().HSV(h, s, 0, v), nPixels);
+					}
+					else
+					{
+						pixel->set(Pixel::Color().HSV(h, s, v), nPixels);
+					}
+				}
+				else
+				{
+					pixel->set(Pixel::Color().HSV(h, s, v), nPixels);
+				}
+				delay(delayTime);
+			}
+		}
 
 	void loop() override
 	{
