@@ -6,14 +6,13 @@
  *
  ********************************************************************************/
 
-#define REQUIRED VERSION(1, 9, 1) // Required HomeSpan version
-#define FW_VERSION "2.1.0"
+#define REQUIRED VERSION(2, 0, 0) // Required HomeSpan version
+#define FW_VERSION "2.2.0"
 
 #include "HomeSpan.h"
 #include "defines.h"
 #include "DEV_Pixel_Strand.h"
 #include "DEV_Switch.h"
-#include "extras/Pixel.h"
 #include <ElegantOTA.h>
 #include <WebServer.h>
 #include <WiFiClient.h>
