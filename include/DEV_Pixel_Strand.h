@@ -104,12 +104,12 @@ struct DEV_Pixel_Strand
 				if (power.getNewVal())
 				{
 					// Power is turned on, fade in
-					fade(H.getVal(), S.getVal(), 0.0, V.getVal());
+					fade(H.getNewVal(), S.getNewVal(), 0.0, V.getNewVal());
 				}
 				else
 				{
 					// Power is turned off, fade out
-					fade(H.getVal(), S.getVal(), V.getVal(), 0.0);
+					fade(H.getNewVal(), S.getNewVal(), V.getNewVal(), 0.0);
 				}
 			}
 
@@ -136,7 +136,7 @@ struct DEV_Pixel_Strand
 	void fade(float h, float s, float v_start, float v_end)
 		{
 			const int fadeSteps = 50; // Number of steps for the fade effect
-			const int delayTime = 10; // Delay between steps in milliseconds
+			const int delayTime = 5; // Delay between steps in milliseconds
 
 			for (int i = 0; i <= fadeSteps; ++i)
 			{
