@@ -52,9 +52,9 @@ struct DEV_Pixel_Strand
 	DEV_Pixel_Strand(int pin) : Service::LightBulb()
 	{
 		if (rgbw.getVal())
-			pixel = new Pixel(pin, PixelType::GRBW); // creates RGBW pixel LED on specified pin using default
+			pixel = new Pixel(pin, "GRBW"); // creates RGBW pixel LED on specified pin using default
 		else
-			pixel = new Pixel(pin, PixelType::GRB); // RGB
+			pixel = new Pixel(pin, "GRB"); // RGB
 
 		Effects.push_back(new ManualControl(this));
 		Effects.push_back(new Rainbow(this));
