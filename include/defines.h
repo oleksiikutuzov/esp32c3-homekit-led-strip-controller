@@ -24,10 +24,17 @@
 #define STATUS_PIN 6
 #define MAX_LEDS 150
 #define DEFAULT_LEDS 90
-
-#ifdef DEV_SWITCH
 #define OPTIONAL_LED 5
-#endif
+
+#elif defined(CONFIG_IDF_TARGET_ESP32C6)
+
+#define NEOPIXEL_PIN 4
+#define MOSFET_PIN 7
+#define BUTTON_PIN 3
+#define STATUS_PIN 6
+#define MAX_LEDS 150
+#define DEFAULT_LEDS 90
+#define OPTIONAL_LED 5
 
 #endif
 
